@@ -6,7 +6,6 @@
     <title>Personalized Fitness Generator</title>
 
     <style>
-        /* Base Styling (Light Mode Defaults) */
         :root {
             --bg-color: #f4f4f9;
             --container-bg: #fff;
@@ -19,7 +18,6 @@
             --week-header-bg: #337ab7;
         }
 
-        /* Dark Mode */
         .dark-mode {
             --bg-color: #121212;
             --container-bg: #1e1e1e;
@@ -49,11 +47,7 @@
             vertical-align: middle;
         }
 
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
 
         .slider-round {
             position: absolute;
@@ -75,13 +69,8 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider-round {
-            background-color: #5cb85c;
-        }
-
-        input:checked + .slider-round:before {
-            transform: translateX(26px);
-        }
+        input:checked + .slider-round { background-color: #5cb85c; }
+        input:checked + .slider-round:before { transform: translateX(26px); }
 
         .container {
             max-width: 90%;
@@ -91,15 +80,8 @@
             border-radius: 6px;
         }
 
-        .workout-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .workout-table th, .workout-table td {
-            padding: 10px;
-            border: 1px solid var(--input-border);
-        }
+        .workout-table { width: 100%; border-collapse: collapse; }
+        .workout-table th, .workout-table td { padding: 10px; border: 1px solid var(--input-border); }
 
         .week-header {
             background: var(--week-header-bg);
@@ -126,9 +108,7 @@
             gap: 10px;
             margin-top: 20px;
         }
-        .action-buttons button {
-            flex: 1;
-        }
+        .action-buttons button { flex: 1; }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -196,6 +176,7 @@ document.getElementById("theme-toggle").addEventListener("change", function () {
     document.body.classList.toggle("dark-mode", this.checked);
 });
 
+/* ---------------------- VIDEO LINKS ---------------------- */
 const exerciseVideos = {
     "Bench Press": "https://www.youtube.com/watch?v=rT7DgCr-3pg",
     "Overhead Press": "https://www.youtube.com/watch?v=2yjwXTZQDDI",
@@ -222,37 +203,51 @@ const exerciseVideos = {
     "Downward Dog": "https://www.youtube.com/watch?v=6tmbeLTHC_0"
 };
 
+/* ---------------------- DYNAMIC WORKOUT GENERATOR ---------------------- */
+function generateWorkouts(objective, daysPerWeek) {
+
+    const base = {
+        gain_muscle: [
+            { target: "Push", setsReps: "4 x 8-12", notes: "Bench Press, Overhead Press, Tricep Extension." },
+            { target: "Pull", setsReps: "3 x 10-15", notes: "Barbell Rows, Lat Pulldown, Bicep Curls." },
+            { target: "Legs", setsReps: "3 x 10-20", notes: "Squats, Leg Press, Romanian Deadlift." }
+        ],
+        lose_weight: [
+            { target: "Full Body", setsReps: "3 Rounds", notes: "Bodyweight Squats, Push-ups, Burpees." },
+            { target: "Cardio", setsReps: "45 mins", notes: "Steady pace." },
+            { target: "Core", setsReps: "3 Rounds", notes: "Planks, Russian Twists, Mountain Climbers." }
+        ],
+        stay_healthy: [
+            { target: "Mobility", setsReps: "30 mins", notes: "Cat-Cow, Bird-Dog, Thoracic Rotations." },
+            { target: "Light Resistance", setsReps: "3 x 15", notes: "Band Pull-aparts, Step-ups." },
+            { target: "Yoga", setsReps: "45 mins", notes: "Downward Dog and stretching." }
+        ]
+    };
+
+    const template = base[objective];
+    const finalPlan = [];
+
+    for (let i = 0; i < daysPerWeek; i++) {
+        const baseWorkout = template[i % template.length];
+        finalPlan.push({
+            day: `Workout ${i + 1}`,
+            target: baseWorkout.target,
+            setsReps: baseWorkout.setsReps,
+            notes: baseWorkout.notes
+        });
+    }
+
+    return finalPlan;
+}
+
+/* ---------------------- FORM SUBMISSION ---------------------- */
 document.getElementById("fitnessForm").addEventListener("submit", function (event) {
     event.preventDefault();
 
     const objective = document.getElementById("objective").value;
     const frequency = parseInt(document.getElementById("frequency").value);
 
-    const workoutRoutines = {
-        gain_muscle: {
-            3: [
-                { day: "Workout 1", target: "Push", setsReps: "4 x 8-12", notes: "Bench Press, Overhead Press, Tricep Extension." },
-                { day: "Workout 2", target: "Pull", setsReps: "3 x 10-15", notes: "Barbell Rows, Lat Pulldown, Bicep Curls." },
-                { day: "Workout 3", target: "Legs", setsReps: "3 x 10-20", notes: "Squats, Leg Press, Romanian Deadlift." }
-            ]
-        },
-        lose_weight: {
-            3: [
-                { day: "Workout 1", target: "Full Body", setsReps: "3 Rounds", notes: "Bodyweight Squats, Push-ups, Burpees." },
-                { day: "Workout 2", target: "Cardio", setsReps: "45 mins", notes: "Steady pace." },
-                { day: "Workout 3", target: "Core", setsReps: "3 Rounds", notes: "Planks, Russian Twists, Mountain Climbers." }
-            ]
-        },
-        stay_healthy: {
-            3: [
-                { day: "Workout 1", target: "Mobility", setsReps: "30 mins", notes: "Cat-Cow, Bird-Dog, Thoracic Rotations." },
-                { day: "Workout 2", target: "Light Resistance", setsReps: "3 x 15", notes: "Band Pull-aparts, Step-ups." },
-                { day: "Workout 3", target: "Yoga", setsReps: "45 mins", notes: "Downward Dog and stretching." }
-            ]
-        }
-    };
-
-    const trainingPlan = workoutRoutines[objective][frequency] || workoutRoutines[objective][3];
+    const trainingPlan = generateWorkouts(objective, frequency);
 
     let tableHTML = `
         <h2>Your Personalized 4-Week Training Program</h2>
@@ -283,7 +278,7 @@ document.getElementById("fitnessForm").addEventListener("submit", function (even
     let exerciseList = new Set();
 
     trainingPlan.forEach(workout => {
-        const combined = (workout.target + " " + workout.notes);
+        const combined = workout.target + " " + workout.notes;
         Object.keys(exerciseVideos).forEach(ex => {
             if (combined.toLowerCase().includes(ex.toLowerCase())) {
                 exerciseList.add(ex);
@@ -300,9 +295,9 @@ document.getElementById("fitnessForm").addEventListener("submit", function (even
     document.getElementById("exerciseVideosContainer").innerHTML = videoHTML;
 });
 
+/* ---------------------- PDF DOWNLOAD ---------------------- */
 document.getElementById("downloadPDF").addEventListener("click", async () => {
     const { jsPDF } = window.jspdf;
-
     const tableElement = document.getElementById("workoutTable");
 
     const canvas = await html2canvas(tableElement, { scale: 2 });
@@ -317,6 +312,7 @@ document.getElementById("downloadPDF").addEventListener("click", async () => {
     pdf.save("Workout-Plan.pdf");
 });
 
+/* ---------------------- SPOTIFY BUTTON ---------------------- */
 document.getElementById("openSpotify").addEventListener("click", () => {
     window.location.href = "spotify://";
     setTimeout(() => {
